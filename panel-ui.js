@@ -69,6 +69,7 @@ export function injectThemeCSS() {
 export function makeDraggable(panel, handle) {
     let drag = null;
     handle.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button')) return; // 닫기 버튼 등 안쪽 버튼은 드래그 시작 안 함
         const r = panel.getBoundingClientRect();
         drag = { sx: e.clientX, sy: e.clientY, ol: r.left, ot: r.top };
         handle.style.cursor = 'grabbing';

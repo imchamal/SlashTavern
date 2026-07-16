@@ -1,8 +1,10 @@
 // ─── highlight.js ───────────────────────────────────────────────────────────
-// /find 결과를 채팅 화면(DOM) 위에 <mark>로 표시. 저장되는 데이터는 안 건드리고
-// 화면에 보이는 텍스트 노드만 감쌌다 풀었다 함.
+// /find, /change 결과를 채팅 화면(DOM) 위에 <mark>로 표시.
+// 각 mark가 몇 번 메시지(msgIdx)에 속하고, 그 메시지 안에서 몇 번째 일치인지도
+// 같이 기억해둠 — /change에서 "지금 보고 있는 이 매치만 실제로 바꾸기"에 사용.
 
-let marks = [];
+let marks = [];       // 화면에 표시된 <mark> 엘리먼트들 (등장 순서대로)
+let matchMeta = [];   // marks와 같은 순서. { msgIdx, occurrence } (occurrence: 그 메시지 안에서 몇 번째 일치인지, 0부터)
 let curIndex = -1;
 
 export function clearHighlights() {
@@ -14,6 +16,7 @@ export function clearHighlights() {
         p.normalize();
     });
     marks = [];
+    matchMeta = [];
     curIndex = -1;
 }
 
@@ -24,6 +27,10 @@ export function highlightKeyword(keyword) {
     const lower = keyword.toLowerCase();
 
     document.querySelectorAll('#chat .mes_text').forEach((mesText) => {
+        const mesEl = mesText.closest('.mes[mesid]');
+        const msgIdx = mesEl ? parseInt(mesEl.getAttribute('mesid'), 10) : -1;
+        let occurrence = 0;
+
         const walker = document.createTreeWalker(mesText, NodeFilter.SHOW_TEXT);
         const textNodes = [];
         let node;
@@ -44,6 +51,8 @@ export function highlightKeyword(keyword) {
                 mark.textContent = text.slice(idx, idx + keyword.length);
                 frag.appendChild(mark);
                 marks.push(mark);
+                matchMeta.push({ msgIdx, occurrence });
+                occurrence++;
                 cursor = idx + keyword.length;
                 idx = lowerText.indexOf(lower, cursor);
             }
@@ -68,3 +77,4 @@ export function focusMark(i) {
 export const focusNext = () => focusMark(curIndex + 1);
 export const focusPrev = () => focusMark(curIndex - 1);
 export const getMarkCount = () => marks.length;
+export const getCurrentMatch = () => matchMeta[curIndex] || null;
