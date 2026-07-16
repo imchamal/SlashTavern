@@ -22,6 +22,7 @@ export function injectThemeCSS() {
             padding: 10px 14px; border-bottom: 1px solid #eeeeee; font-weight: 600;
             cursor: grab; touch-action: none;
         }
+        .ct-panel-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .ct-panel-body { padding: 12px 14px; overflow-y: auto; flex: 1; }
         .ct-close-btn {
             background: transparent; border: none; font-size: 16px; cursor: pointer;
@@ -102,7 +103,10 @@ export function createPanel(id, title, onClose) {
     panel.innerHTML = `
         <div class="ct-panel-header">
             <span>${title}</span>
-            <button class="ct-close-btn" type="button">✕</button>
+            <div class="ct-panel-header-right">
+                <span id="ct-pos" class="ct-pos"></span>
+                <button class="ct-close-btn" type="button">✕</button>
+            </div>
         </div>
         <div class="ct-panel-body"></div>
     `;
