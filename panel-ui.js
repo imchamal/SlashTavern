@@ -8,17 +8,19 @@ export function injectThemeCSS() {
     s.id = 'ct-theme-vars';
     s.textContent = `
         .ct-panel {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            position: fixed;
             width: min(380px, 92vw); max-height: 80vh;
             display: flex; flex-direction: column;
             background: #ffffff; color: #333333;
             border: 1px solid #dddddd; border-radius: 12px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.15);
             z-index: 9999999; font-size: 13px; font-family: inherit;
+            opacity: 0;
         }
         .ct-panel-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 10px 14px; border-bottom: 1px solid #eeeeee; font-weight: 600;
+            cursor: grab; touch-action: none;
         }
         .ct-panel-body { padding: 12px 14px; overflow-y: auto; flex: 1; }
         .ct-close-btn {
@@ -63,6 +65,25 @@ export function injectThemeCSS() {
     document.head.appendChild(s);
 }
 
+// 패널 헤더를 손가락/마우스로 누른 채 움직이면 패널이 따라 움직이게 함
+export function makeDraggable(panel, handle) {
+    let drag = null;
+    handle.addEventListener('pointerdown', (e) => {
+        const r = panel.getBoundingClientRect();
+        drag = { sx: e.clientX, sy: e.clientY, ol: r.left, ot: r.top };
+        handle.style.cursor = 'grabbing';
+        handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+    });
+    handle.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        panel.style.left = `${drag.ol + e.clientX - drag.sx}px`;
+        panel.style.top = `${drag.ot + e.clientY - drag.sy}px`;
+    });
+    handle.addEventListener('pointerup', () => { drag = null; handle.style.cursor = 'grab'; });
+    handle.addEventListener('pointercancel', () => { drag = null; handle.style.cursor = 'grab'; });
+}
+
 export function createPanel(id, title) {
     document.getElementById(id)?.remove();
     const panel = document.createElement('div');
@@ -77,6 +98,15 @@ export function createPanel(id, title) {
     `;
     panel.querySelector('.ct-close-btn').addEventListener('click', () => panel.remove());
     document.body.appendChild(panel);
+
+    requestAnimationFrame(() => {
+        const pw = panel.offsetWidth, ph = panel.offsetHeight;
+        panel.style.left = `${Math.round((window.innerWidth - pw) / 2)}px`;
+        panel.style.top = `${Math.round((window.innerHeight - ph) / 2)}px`;
+        panel.style.opacity = '1';
+    });
+    makeDraggable(panel, panel.querySelector('.ct-panel-header'));
+
     return panel;
 }
 
