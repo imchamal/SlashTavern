@@ -69,8 +69,8 @@ function handleSelection() {
     const rect = range.getBoundingClientRect();
     if (!rect || (rect.width === 0 && rect.height === 0)) { removePill(); return; }
 
-    showPill(rect.ㅠ + rect.width / 2, rect.bottom - 10, () => {
-        openQuickEditPanel(msgIdx, text);
+    showPill(rect.left + rect.width / 2, rect.bottom + 10, () => {
+    openQuickEditPanel(msgIdx, text);
     });
 }
 
