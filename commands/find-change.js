@@ -88,7 +88,7 @@ function applyRangeToOptions(options, rangeInput) {
 
 // ── /find ────────────────────────────────────────────────────────────────────
 
-function runFind(keyword, options = {}) {
+export function runFind(keyword, options = {}) {
     const settings = getSettings();
     if (!settings.hlEnabled) { toastr.info('편집모드(/edit-mode)에서 하이라이트가 꺼져있습니다.'); return; }
 
@@ -178,6 +178,32 @@ async function runChangeAll(find, replace, options = {}) {
     else toastr.info('일치하는 내용이 없습니다.');
 }
 
+// 지금 하이라이트로 선택되어 있는 "이 매치 하나만" 원본 텍스트에서 바꿈.
+// ("하나씩 검토" 모드에서 사용 — runChangeAll과 같은 방식으로 위치를 찾되, 그중 현재 매치 하나만 교체)
+async function runChangeOne(find, replace, options = {}) {
+    const match = getCurrentMatch();
+    if (!match) { toastr.info('선택된 항목이 없습니다.'); return; }
+    const chat = getChat();
+    const msg = chat[match.msgIdx];
+    if (!msg) return;
+    const raw = msg.mes;
+    const searchText = options.ignoreTags ? maskTags(raw) : raw;
+    const re = buildSearchRegex(find, options);
+
+    const found = [];
+    let m;
+    while ((m = re.exec(searchText)) !== null) {
+        if (m.index === re.lastIndex) { re.lastIndex++; continue; }
+        found.push({ start: m.index, end: m.index + m[0].length });
+    }
+    const target = found[match.occurrence];
+    if (!target) { toastr.error('원문에서 해당 위치를 찾지 못했습니다.'); return; }
+
+    const newMes = raw.slice(0, target.start) + replace + raw.slice(target.end);
+    await editMessage(match.msgIdx, newMes);
+    toastr.success('바꿨습니다.', '', { timeOut: 1500 });
+}
+
 function showChangeResultPanel(find, replaceValue, options) {
     const panel = createPanel('ct-change-panel', resultTitleHtml(find, getMarkCount(), options), () => clearHighlights());
     const body = getPanelBody(panel);
@@ -196,9 +222,13 @@ function showChangeResultPanel(find, replaceValue, options) {
     const leftGroup = document.createElement('div');
     leftGroup.style.cssText = 'display:flex; gap:6px; align-items:center;';
 
+    let reviewing = false; // false: '모두 바꾸기' 모드, true: '하나씩 검토' 후 '바꾸기'(현재 매치만) 모드
+
     const reviewBtn = btn('하나씩 검토', () => {
+        reviewing = true;
         reviewBtn.style.display = 'none';
         navGroup.style.display = 'flex';
+        allBtn.textContent = '바꾸기';
     });
     leftGroup.appendChild(reviewBtn);
 
@@ -211,9 +241,17 @@ function showChangeResultPanel(find, replaceValue, options) {
     actionRow.appendChild(leftGroup);
 
     const allBtn = btn('모두 바꾸기', async () => {
-        clearHighlights();
-        panel.remove();
-        await runChangeAll(find, replaceInput.value, options);
+        if (reviewing) {
+            // '하나씩 검토' 모드: 지금 보고 있는 매치 하나만 바꾸고, 검색을 새로고침해서 계속 검토할 수 있게 함
+            await runChangeOne(find, replaceInput.value, options);
+            panel.remove();
+            runChangeSearch(find, replaceInput.value, options);
+        } else {
+            // 기본 모드: 전체 매치를 한 번에 바꿈
+            clearHighlights();
+            panel.remove();
+            await runChangeAll(find, replaceInput.value, options);
+        }
     });
     allBtn.classList.add('ct-btn-white');
     actionRow.appendChild(allBtn);
