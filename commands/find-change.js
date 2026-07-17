@@ -91,8 +91,8 @@ function runFind(keyword, options = {}) {
     const panel = createPanel('ct-find-panel', resultTitleHtml(keyword, count, options), () => clearHighlights());
     const body = getPanelBody(panel);
     const row = document.createElement('div');
-    row.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    row.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
+    row.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
+    row.appendChild(btn('다음 ▶︎', () => { focusNext(); updatePositionLabel(panel); }));
     body.appendChild(row);
 
     updatePositionLabel(panel);
@@ -191,8 +191,8 @@ function showChangeResultPanel(find, replaceValue, options) {
     leftGroup.style.cssText = 'display: flex; gap: 4px;'; // 버튼 사이 간격
 
     // 이전/다음 버튼 (초기에는 display: none으로 완전히 숨김)
-    const prevBtn = btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); });
-    const nextBtn = btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); });
+    const prevBtn = btn('◀︎ 이전', () => { focusPrev(); updatePositionLabel(panel); });
+    const nextBtn = btn('다음 ▶︎', () => { focusNext(); updatePositionLabel(panel); });
     prevBtn.style.display = 'none';
     nextBtn.style.display = 'none';
 
