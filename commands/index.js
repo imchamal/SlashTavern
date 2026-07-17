@@ -12,6 +12,7 @@ import { registerClipboardCommand } from './clipboard.js';
 import { registerWordCountCommand } from './wordcount.js';
 import { registerEditModeCommand } from './edit-mode.js';
 import { registerMessageManageCommand } from './message-manage.js';
+import { registerScissorButton } from './scissor-button.js';
 
 const registrars = [
     registerScrollCommands,        // /up /down /goto /message-mb
@@ -22,6 +23,7 @@ const registrars = [
     registerWordCountCommand,      // /word
     registerEditModeCommand,       // /edit-mode
     registerMessageManageCommand,  // /messages (전체 메시지 숨김/삭제 관리)
+    registerScissorButton,         // 메시지 툴바에 가위 아이콘(삭제) 추가
 ];
 
 export function registerAllCommands() {
