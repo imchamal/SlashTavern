@@ -66,8 +66,7 @@ function buildSearchControls() {
     rangeInput.autocorrect = 'off';
     rangeInput.autocapitalize = 'off';
     rangeInput.spellcheck = false;
-    rangeInput.style.cssText = 'width:70px; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #dddddd; font-size:13px; font-family:inherit;';
-    return { grid, rangeInput, getOptions: () => ({ ...state }) };
+    rangeInput.style.cssText = 'width:70px; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #dddddd; font-size:13px; font-family:inherit; margin:0;';    return { grid, rangeInput, getOptions: () => ({ ...state }) };
 }
 
 // 검색범위 입력값을 옵션에 반영. 형식이 잘못됐으면 false를 반환(그때는 진행하면 안 됨)
@@ -114,6 +113,7 @@ function openFindInputPanel() {
     bottomRow.appendChild(rangeInput);
     const findBtn = btn('찾기', doFind);
     findBtn.classList.add('ct-btn-white');
+    findBtn.style.margin = '0';
     bottomRow.appendChild(findBtn);
     body.appendChild(bottomRow);
 
@@ -233,6 +233,7 @@ function openChangeInputPanel() {
     bottomRow.appendChild(rangeInput);
     const searchBtn = btn('검색', doSearch);
     searchBtn.classList.add('ct-btn-white');
+    searchBtn.style.margin = '0';
     bottomRow.appendChild(searchBtn);
     body.appendChild(bottomRow);
 
