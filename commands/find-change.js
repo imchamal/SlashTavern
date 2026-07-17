@@ -61,13 +61,12 @@ function buildSearchControls() {
 
     const rangeInput = document.createElement('input');
     rangeInput.type = 'text';
-    rangeInput.placeholder = '검색 범위';
+    rangeInput.placeholder = '범위 지정';
     rangeInput.autocomplete = 'off';
     rangeInput.autocorrect = 'off';
     rangeInput.autocapitalize = 'off';
     rangeInput.spellcheck = false;
-    rangeInput.style.cssText = 'width:110px; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #dddddd; font-size:13px; font-family:inherit;';
-
+    rangeInput.style.cssText = 'width:70px; box-sizing:border-box; padding:8px 10px; border-radius:8px; border:1px solid #dddddd; font-size:13px; font-family:inherit;';
     return { grid, rangeInput, getOptions: () => ({ ...state }) };
 }
 
@@ -114,7 +113,6 @@ function openFindInputPanel() {
     bottomRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
     bottomRow.appendChild(rangeInput);
     const findBtn = btn('찾기', doFind);
-    findBtn.classList.add('ct-btn-primary');
     bottomRow.appendChild(findBtn);
     body.appendChild(bottomRow);
 
@@ -184,7 +182,7 @@ function showChangeResultPanel(find, replaceValue, options) {
 
     // 이전/다음 화살표는 "하나씩 검토"를 누르기 전까지 숨겨둠
     const navRow = document.createElement('div');
-    navRow.style.display = 'none';
+    navRow.style.visibility = 'hidden';
     navRow.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
     navRow.appendChild(btn('다음 ▶', () => { focusNext(); updatePositionLabel(panel); }));
     body.appendChild(navRow);
@@ -193,7 +191,7 @@ function showChangeResultPanel(find, replaceValue, options) {
     actionRow.className = 'ct-action-row';
 
     const reviewBtn = btn('하나씩 검토', () => {
-        navRow.style.display = '';
+        navRow.style.visibility = '';
         reviewBtn.style.visibility = 'hidden';
         reviewBtn.disabled = true;
     });
@@ -233,7 +231,6 @@ function openChangeInputPanel() {
     bottomRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
     bottomRow.appendChild(rangeInput);
     const searchBtn = btn('검색', doSearch);
-    searchBtn.classList.add('ct-btn-primary');
     bottomRow.appendChild(searchBtn);
     body.appendChild(bottomRow);
 
