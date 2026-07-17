@@ -66,8 +66,7 @@ function buildSearchControls() {
     rangeInput.autocorrect = 'off';
     rangeInput.autocapitalize = 'off';
     rangeInput.spellcheck = false;
-    rangeInput.style.cssText = 'width:70px; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #dddddd; font-size:13px; font-family:inherit; margin:0;';    return { grid, rangeInput, getOptions: () => ({ ...state }) };
-}
+rangeInput.style.cssText = 'width:70px; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #dddddd; background:#f4f4f4; font-size:13px; font-family:inherit; margin:0;';}
 
 // 검색범위 입력값을 옵션에 반영. 형식이 잘못됐으면 false를 반환(그때는 진행하면 안 됨)
 function applyRangeToOptions(options, rangeInput) {
@@ -183,7 +182,7 @@ function showChangeResultPanel(find, replaceValue, options) {
 
     // 이전/다음 화살표는 "하나씩 검토"를 누르기 전까지 숨겨둠
     const navRow = document.createElement('div');
-    navRow.style.visibility = 'hidden';
+    navRow.style.display = 'none';
     navRow.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
     navRow.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
     body.appendChild(navRow);
@@ -192,7 +191,7 @@ function showChangeResultPanel(find, replaceValue, options) {
     actionRow.className = 'ct-action-row';
 
     const reviewBtn = btn('하나씩 검토', () => {
-        navRow.style.visibility = '';
+        navRow.style.display = '';
         reviewBtn.style.visibility = 'hidden';
         reviewBtn.disabled = true;
     });
