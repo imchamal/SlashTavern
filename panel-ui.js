@@ -74,7 +74,7 @@ export function injectThemeCSS() {
 
         /* 드래그 선택 후 뜨는 빠른수정 아이콘 */
         .ct-pill {
-            position: fixed; z-index: 999999; transform: translate(-50%, -100%);
+            position: fixed; z-index: 999999; transform: translate(-50%, 0%);
             background: #ffffff; border: 1px solid #dddddd; border-radius: 20px;
             padding: 6px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             font-size: 14px; cursor: pointer; white-space: nowrap; user-select: none;
