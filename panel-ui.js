@@ -52,7 +52,7 @@ export function injectThemeCSS() {
             display: flex; justify-content: space-between; align-items: center;
         }
         .ct-btn-white {
-            background: #ffffff; color: #dddddd; border-color: #dddddd;
+            background: #ffffff; color: #333333; border-color: #dddddd;
         }
         .ct-btn-white:active { background: #eeeeee; }
         .ct-btn-danger {
