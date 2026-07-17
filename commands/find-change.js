@@ -180,23 +180,40 @@ function showChangeResultPanel(find, replaceValue, options) {
     replaceInput.value = replaceValue;
     body.appendChild(replaceInput);
 
-    // 이전/다음 화살표는 "하나씩 검토"를 누르기 전까지 숨겨둠
-    const navRow = document.createElement('div');
-    navRow.style.display = 'none';
-    navRow.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    navRow.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
-    body.appendChild(navRow);
-
+    // 하단 버튼들을 담는 메인 Row
     const actionRow = document.createElement('div');
     actionRow.className = 'ct-action-row';
+    // ct-action-row 클래스에 이미 flex 속성이 있다면 아래 cssText는 생략 가능합니다.
+    actionRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-top: 10px;';
 
+    // 좌측 그룹: '하나씩 검토' 또는 '이전/다음' 버튼이 위치할 컨테이너
+    const leftGroup = document.createElement('div');
+    leftGroup.style.cssText = 'display: flex; gap: 4px;'; // 버튼 사이 간격
+
+    // 이전/다음 버튼 (초기에는 display: none으로 완전히 숨김)
+    const prevBtn = btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); });
+    const nextBtn = btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); });
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+
+    // 하나씩 검토 버튼
     const reviewBtn = btn('하나씩 검토', () => {
-        navRow.style.display = '';
-        reviewBtn.style.visibility = 'hidden';
-        reviewBtn.disabled = true;
+        // visibility 대신 display를 변경하여 공간을 완전히 제거
+        reviewBtn.style.display = 'none'; 
+        
+        // 숨겨뒀던 이전/다음 버튼을 동일한 자리에 표시
+        prevBtn.style.display = '';
+        nextBtn.style.display = '';
     });
-    actionRow.appendChild(reviewBtn);
 
+    // 좌측 그룹에 버튼들 추가
+    leftGroup.appendChild(reviewBtn);
+    leftGroup.appendChild(prevBtn);
+    leftGroup.appendChild(nextBtn);
+    
+    actionRow.appendChild(leftGroup);
+
+    // 우측 그룹: '모두 바꾸기' 버튼
     const allBtn = btn('모두 바꾸기', async () => {
         clearHighlights();
         panel.remove();
