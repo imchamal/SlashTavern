@@ -266,14 +266,14 @@ function showChangeResultPanel(find, replaceValue, options) {
     body.appendChild(actionRow);
 }
 
-function runChangeSearch(find, replaceValue, options = {}, startReviewing = false) {
+function runChangeSearch(find, replaceValue, options = {}) {
     const settings = getSettings();
     if (!settings.hlEnabled) { toastr.info('편집모드(/edit-mode)에서 하이라이트가 꺼져있습니다.'); return; }
 
     const count = highlightKeyword(find, options);
     if (!count) { toastr.info('검색 결과가 없습니다.'); return; }
 
-    showChangeResultPanel(find, replaceValue, options, startReviewing);
+    showChangeResultPanel(find, replaceValue, options);
 }
 
 // ── 명령어 등록 ────────────────────────────────────────────────────────────────
