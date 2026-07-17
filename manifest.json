@@ -1,7 +1,7 @@
 {
   "display_name": "SlashTavern",
   "name": "SlashTavern",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "채팅 편의 기능 확장 - 스크롤 이동, 접기/펼치기, 찾기/바꾸기(옵션 지원), 빠른수정, 클립보드, 글자수, 편집모드, 메시지 관리(숨김/삭제)",
   "author": "imchamal",
   "homepage": "https://github.com/imchamal/SlashTavern",
