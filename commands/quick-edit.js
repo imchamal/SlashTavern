@@ -1,5 +1,5 @@
 // ─── commands/quick-edit.js ─────────────────────────────────────────────────
-// 채팅 메시지에서 텍스트를 드래그(길게 눌러 선택)하면 그 위에 "✏️ 수정" 아이콘이 뜨고,
+// 채팅 메시지에서 텍스트를 드래그(길게 눌러 선택)하면 그 아래에 "✏️" 아이콘이 뜨고,
 // 누르면 다른 패널들과 같은 디자인의 입력 패널이 떠서 그 부분만 바꿔줌.
 
 import { getChat, editMessage, getSettings } from '../state.js';
@@ -17,7 +17,7 @@ function showPill(x, y, onClick) {
     removePill();
     pillEl = document.createElement('div');
     pillEl.className = 'ct-pill';
-    pillEl.textContent = '✏️ 수정';
+    pillEl.textContent = '✏️';
     pillEl.style.left = `${x}px`;
     pillEl.style.top = `${y}px`;
     pillEl.addEventListener('pointerdown', (e) => e.stopPropagation());
@@ -69,7 +69,7 @@ function handleSelection() {
     const rect = range.getBoundingClientRect();
     if (!rect || (rect.width === 0 && rect.height === 0)) { removePill(); return; }
 
-    showPill(rect.left + rect.width / 2, rect.top - 10, () => {
+    showPill(rect.ㅠ + rect.width / 2, rect.bottom - 10, () => {
         openQuickEditPanel(msgIdx, text);
     });
 }
