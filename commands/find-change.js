@@ -98,14 +98,23 @@ export function runFind(keyword, options = {}) {
     const panel = createPanel('ct-find-panel', resultTitleHtml(keyword, count, options), () => clearHighlights());
     const body = getPanelBody(panel);
     const row = document.createElement('div');
-    row.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    row.appendChild(btn('다음 ▶︎', () => { focusNext(); updatePositionLabel(panel); }));
+    row.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
+
+    const leftGroup = document.createElement('div');
+    leftGroup.style.cssText = 'display:flex; gap:6px;';
+    leftGroup.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
+    leftGroup.appendChild(btn('다음 ▶︎', () => { focusNext(); updatePositionLabel(panel); }));
+    row.appendChild(leftGroup);
+
     // 이미 하이라이트되어 있는 지금 검색 결과를 그대로 들고 "찾아바꾸기" 패널로 전환.
     // (다시 검색하지 않고 showChangeResultPanel만 새로 띄움)
-    row.appendChild(btn('바꾸기', () => {
+    const changeBtn = btn('✏️', () => {
         panel.remove();
         showChangeResultPanel(keyword, '', options);
-    }));
+    });
+    changeBtn.style.margin = '0';
+    row.appendChild(changeBtn);
+
     body.appendChild(row);
 
     updatePositionLabel(panel);
