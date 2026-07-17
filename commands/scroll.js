@@ -5,6 +5,20 @@ import { SlashCommandParser } from '/scripts/slash-commands/SlashCommandParser.j
 import { SlashCommand } from '/scripts/slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandArgument } from '/scripts/slash-commands/SlashCommandArgument.js';
 
+// 실리태번은 성능을 위해 최근 N개 메시지만 화면(DOM)에 그려두고, 그 이상은
+// "Show more messages" 버튼을 눌러야 위쪽 메시지들을 추가로 불러옴.
+// predicate()가 true가 될 때까지(=원하는 메시지가 로드될 때까지) 그 버튼을 대신 눌러줌.
+async function loadMoreUntil(predicate, { maxAttempts = 50, delay = 200 } = {}) {
+    for (let i = 0; i < maxAttempts; i++) {
+        if (predicate()) return true;
+        const moreBtn = document.getElementById('show_more_messages');
+        if (!moreBtn) return predicate(); // 더 불러올 게 없음 — 여기서 끝
+        moreBtn.click();
+        await new Promise((r) => setTimeout(r, delay));
+    }
+    return predicate();
+}
+
 export function registerScrollCommands() {
     SlashCommandParser.addCommandObject(SlashCommand.fromProps({
         name: 'up',
@@ -47,9 +61,10 @@ export function registerScrollCommands() {
         callback: async (_a, value) => {
             const idx = parseInt(value, 10);
             if (Number.isNaN(idx)) { toastr.error('사용법: /goto 5'); return ''; }
+            await loadMoreUntil(() => !!document.querySelector(`[mesid="${idx}"]`));
             const el = document.querySelector(`[mesid="${idx}"]`);
             if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
-            else toastr.error(`${idx}번 메시지를 화면에서 찾지 못했습니다. (아직 로드되지 않았을 수 있음 — 위로 스크롤해서 불러온 뒤 다시 시도)`, '', { timeOut: 5000 });
+            else toastr.error(`${idx}번 메시지를 화면에서 찾지 못했습니다. (실제로 존재하지 않는 번호일 수 있음)`, '', { timeOut: 5000 });
             return '';
         },
     }));
