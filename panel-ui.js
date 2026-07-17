@@ -59,6 +59,10 @@ export function injectThemeCSS() {
             background: #c62828; color: #ffffff; border-color: #c62828;
         }
         .ct-btn-danger:active { background: #a02121; }
+        .ct-btn-accent {
+            background: #2f6fed; color: #ffffff; border-color: #2f6fed;
+        }
+        .ct-btn-accent:active { background: #2559c2; }
         .ct-badge {
             flex-shrink: 0; font-size: 10px; color: #999999; border: 1px solid #dddddd;
             border-radius: 4px; padding: 1px 5px; margin-left: 6px;
