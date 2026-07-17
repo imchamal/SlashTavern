@@ -92,8 +92,8 @@ function runFind(keyword, options = {}) {
     const panel = createPanel('ct-find-panel', resultTitleHtml(keyword, count, options), () => clearHighlights());
     const body = getPanelBody(panel);
     const row = document.createElement('div');
-    row.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    row.appendChild(btn('다음 ▶', () => { focusNext(); updatePositionLabel(panel); }));
+    row.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
+    row.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
     body.appendChild(row);
 
     updatePositionLabel(panel);
@@ -184,8 +184,8 @@ function showChangeResultPanel(find, replaceValue, options) {
     // 이전/다음 화살표는 "하나씩 검토"를 누르기 전까지 숨겨둠
     const navRow = document.createElement('div');
     navRow.style.visibility = 'hidden';
-    navRow.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    navRow.appendChild(btn('다음 ▶', () => { focusNext(); updatePositionLabel(panel); }));
+    navRow.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
+    navRow.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
     body.appendChild(navRow);
 
     const actionRow = document.createElement('div');
