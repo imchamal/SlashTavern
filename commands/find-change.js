@@ -222,7 +222,7 @@ async function runChangeOne(find, replace, options = {}) {
     toastr.success('바꿨습니다.', '', { timeOut: 1500 });
 }
 
-function showChangeResultPanel(find, replaceValue, options, startReviewing = false) {
+function showChangeResultPanel(find, replaceValue, options) {
     const panel = createPanel('ct-change-panel', resultTitleHtml(find, getMarkCount(), options), () => clearHighlights());
     const body = getPanelBody(panel);
     updatePositionLabel(panel);
@@ -231,57 +231,38 @@ function showChangeResultPanel(find, replaceValue, options, startReviewing = fal
     replaceInput.value = replaceValue;
     body.appendChild(replaceInput);
 
-// '하나씩 검토'와 '모두 바꾸기'는 항상 한 줄(actionRow)에 있음.
-    // '하나씩 검토'를 누르면 새 줄이 생기는 게 아니라, 같은 자리(leftGroup)의
-    // 내용물이 '◂ 이전 / 다음 ▸'으로 바뀔 뿐이라 '모두 바꾸기' 위치는 그대로 유지됨.
+    // 왼쪽: 이전/다음 내비게이션. 오른쪽: 바꾸기(현재 매치만)/모두 바꾸기(전체) — 항상 같이 표시됨.
     const actionRow = document.createElement('div');
     actionRow.className = 'ct-action-row';
 
-    const leftGroup = document.createElement('div');
-    leftGroup.style.cssText = 'display:flex; gap:6px; align-items:center;';
-
-let reviewing = startReviewing; // false: '모두 바꾸기' 모드, true: '하나씩 검토' 후 '바꾸기'(현재 매치만) 모드
-    
-    const reviewBtn = btn('하나씩 검토', () => {
-        reviewing = true;
-        reviewBtn.style.display = 'none';
-        navGroup.style.display = 'flex';
-        allBtn.textContent = '바꾸기';
-    });
-    leftGroup.appendChild(reviewBtn);
-
     const navGroup = document.createElement('div');
-    navGroup.style.cssText = 'display:none; gap:6px;';
+    navGroup.style.cssText = 'display:flex; gap:6px;';
     navGroup.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
     navGroup.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
-    leftGroup.appendChild(navGroup);
+    actionRow.appendChild(navGroup);
 
-    actionRow.appendChild(leftGroup);
+    const rightGroup = document.createElement('div');
+    rightGroup.style.cssText = 'display:flex; gap:6px;';
 
-    const allBtn = btn('모두 바꾸기', async () => {
-        if (reviewing) {
-            // '하나씩 검토' 모드: 지금 보고 있는 매치 하나만 바꾸고, 검색을 새로고침해서 계속 검토할 수 있게 함
-            await runChangeOne(find, replaceInput.value, options);
-            panel.remove();
-            runChangeSearch(find, replaceInput.value, options, true);
-        } else {
-            // 기본 모드: 전체 매치를 한 번에 바꿈
-            clearHighlights();
-            panel.remove();
-            await runChangeAll(find, replaceInput.value, options);
-        }
+    // 지금 보고 있는 매치 하나만 바꾸고, 검색을 새로고침해서 계속 다음 매치를 검토할 수 있게 함
+    const oneBtn = btn('바꾸기', async () => {
+        await runChangeOne(find, replaceInput.value, options);
+        panel.remove();
+        runChangeSearch(find, replaceInput.value, options);
     });
-    allBtn.classList.add('ct-btn-white');
-    actionRow.appendChild(allBtn);
+    oneBtn.style.cssText += 'background:#1976d2; color:#ffffff; border-color:#1976d2;';
+    rightGroup.appendChild(oneBtn);
 
-    // 검토 중이었다면(=방금 하나 바꾸고 다시 그려진 패널이라면) 처음부터
-    // '이전/다음 + 바꾸기' 상태로 열어서 검토 흐름이 끊기지 않게 함
-    if (startReviewing) {
-        reviewBtn.style.display = 'none';
-        navGroup.style.display = 'flex';
-        allBtn.textContent = '바꾸기';
-    }
+    // 전체 매치를 한 번에 바꿈
+    const allBtn = btn('모두 바꾸기', async () => {
+        clearHighlights();
+        panel.remove();
+        await runChangeAll(find, replaceInput.value, options);
+    });
+    allBtn.classList.add('ct-btn-danger');
+    rightGroup.appendChild(allBtn);
 
+    actionRow.appendChild(rightGroup);
     body.appendChild(actionRow);
 }
 
