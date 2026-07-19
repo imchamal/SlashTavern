@@ -21,7 +21,7 @@ const SUBCOMMANDS = [
     'message-mb',
     'clip',
     'word',
-    'edit-mode',
+    'settings',
     'messages',
 ];
 
@@ -65,8 +65,8 @@ async function runStSubcommand(command, rest) {
         case 'word':
             await countWords(rest);
             break;
-        case 'edit-mode':
-            openEditModePanel();
+        case 'settings':
+            openSettingsPanel();
             break;
         case 'messages':
             openMessagePanel();
