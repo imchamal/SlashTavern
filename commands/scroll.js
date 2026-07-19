@@ -1,5 +1,5 @@
 // ─── commands/scroll.js ─────────────────────────────────────────────────────
-// /up, /down, /goto — 스크롤 이동
+// /up, /down, /goto, /prev, /next — 스크롤 이동
 
 import { SlashCommandParser } from '/scripts/slash-commands/SlashCommandParser.js';
 import { SlashCommand } from '/scripts/slash-commands/SlashCommand.js';
@@ -33,6 +33,28 @@ export async function scrollToMemoryBoundary() {
     if (marker) marker.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
+function getCurrentMessageIndex() {
+    const chatEl = document.getElementById('chat');
+    const messages = [...document.querySelectorAll('.mes[mesid]')];
+    if (!messages.length) return null;
+
+    const chatTop = chatEl?.getBoundingClientRect().top ?? 0;
+    let bestIdx = parseInt(messages[0].getAttribute('mesid'), 10);
+    let bestDistance = Infinity;
+
+    for (const el of messages) {
+        const idx = parseInt(el.getAttribute('mesid'), 10);
+        if (Number.isNaN(idx)) continue;
+        const distance = Math.abs(el.getBoundingClientRect().top - chatTop);
+        if (distance < bestDistance) {
+            bestIdx = idx;
+            bestDistance = distance;
+        }
+    }
+
+    return bestIdx;
+}
+
 export async function scrollToMessage(value) {
     const idx = parseInt(value, 10);
     if (Number.isNaN(idx)) { toastr.error('사용법: /goto 5 또는 /st goto 5'); return; }
@@ -40,6 +62,18 @@ export async function scrollToMessage(value) {
     const el = document.querySelector(`[mesid="${idx}"]`);
     if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
     else toastr.error(`${idx}번 메시지를 화면에서 찾지 못했습니다. (실제로 존재하지 않는 번호일 수 있음)`, '', { timeOut: 5000 });
+}
+
+export async function scrollToAdjacentMessage(direction) {
+    const currentIdx = getCurrentMessageIndex();
+    if (currentIdx === null) return;
+
+    const targetIdx = currentIdx + direction;
+    if (targetIdx < 0) return;
+
+    await loadMoreUntil(() => !!document.querySelector(`[mesid="${targetIdx}"]`));
+    const el = document.querySelector(`[mesid="${targetIdx}"]`);
+    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
 }
 
 export function registerScrollCommands() {
@@ -57,6 +91,24 @@ export function registerScrollCommands() {
         helpString: '채팅 맨 아래로 스크롤합니다.',
         callback: async () => {
             await scrollDown();
+            return '';
+        },
+    }));
+
+    SlashCommandParser.addCommandObject(SlashCommand.fromProps({
+        name: 'prev',
+        helpString: '현재 위치 기준 이전 메시지로 스크롤합니다.',
+        callback: async () => {
+            await scrollToAdjacentMessage(-1);
+            return '';
+        },
+    }));
+
+    SlashCommandParser.addCommandObject(SlashCommand.fromProps({
+        name: 'next',
+        helpString: '현재 위치 기준 다음 메시지로 스크롤합니다.',
+        callback: async () => {
+            await scrollToAdjacentMessage(1);
             return '';
         },
     }));

@@ -17,7 +17,7 @@ import { registerStCommand } from './st.js';
 
 const registrars = [
     registerStCommand,             // /st search, /st goto 5 처럼 SlashTavern 명령어 모음
-    registerScrollCommands,        // /up /down /goto /message-mb
+    registerScrollCommands,        // /up /down /prev /next /goto /message-mb
     registerCollapseCommands,      // /collapse /expand
     registerFindChangeCommands,    // /find /change (옵션: 대소문자/띄어쓰기/온전한단어/태그무시)
     registerQuickEdit,             // 드래그 후 빠른수정 아이콘

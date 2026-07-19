@@ -1,7 +1,10 @@
 import { SlashCommandParser } from '/scripts/slash-commands/SlashCommandParser.js';
 import { SlashCommand } from '/scripts/slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandArgument } from '/scripts/slash-commands/SlashCommandArgument.js';
-import { scrollUp, scrollDown, scrollToMessage, scrollToMemoryBoundary } from './scroll.js';
+import {
+    scrollUp, scrollDown, scrollToMessage,
+    scrollToMemoryBoundary, scrollToAdjacentMessage,
+} from './scroll.js';
 import { collapseMessages, expandMessages } from './collapse.js';
 import { runSearchCommand } from './find-change.js';
 import { copyMessages } from './clipboard.js';
@@ -14,6 +17,8 @@ const SUBCOMMANDS = [
     'goto',
     'up',
     'down',
+    'prev',
+    'next',
     'message-mb',
     'collapse',
     'expand',
@@ -47,6 +52,12 @@ async function runStSubcommand(command, rest) {
             break;
         case 'down':
             await scrollDown();
+            break;
+        case 'prev':
+            await scrollToAdjacentMessage(-1);
+            break;
+        case 'next':
+            await scrollToAdjacentMessage(1);
             break;
         case 'message-mb':
             await scrollToMemoryBoundary();

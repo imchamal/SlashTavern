@@ -14,6 +14,8 @@ SillyTavern 채팅 편의 기능 확장입니다.
 | `/st goto 5` | 5번 메시지로 이동 |
 | `/st up` | 채팅 맨 위로 이동 |
 | `/st down` | 채팅 맨 아래로 이동 |
+| `/st prev` | 현재 위치 기준 이전 메시지로 이동 |
+| `/st next` | 현재 위치 기준 다음 메시지로 이동 |
 | `/st message-mb` | STMemoryBooks 메모리 경계선으로 이동 |
 | `/st collapse 2-5` | 2번부터 5번 메시지 접기 |
 | `/st expand 2-5` | 2번부터 5번 메시지 펼치기 |
@@ -32,6 +34,8 @@ SillyTavern 채팅 편의 기능 확장입니다.
 | `/goto 5` | `/st goto 5` |
 | `/up` | `/st up` |
 | `/down` | `/st down` |
+| `/prev` | `/st prev` |
+| `/next` | `/st next` |
 | `/message-mb` | `/st message-mb` |
 | `/collapse 2-5` | `/st collapse 2-5` |
 | `/expand 2-5` | `/st expand 2-5` |
