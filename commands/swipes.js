@@ -4,6 +4,7 @@
 import { getChat } from '../state.js';
 import { createPanel, getPanelBody, btn } from '../panel-ui.js';
 import { previewText } from '../utils.js';
+import { scrollToMessage } from './scroll.js';
 
 function getSwipeItems() {
     return getChat()
@@ -15,6 +16,11 @@ function getCurrentSwipeIndex(msg) {
     const idx = Number.isInteger(msg?.swipe_id) ? msg.swipe_id : 0;
     if (!Array.isArray(msg?.swipes) || !msg.swipes.length) return 0;
     return Math.min(Math.max(idx, 0), msg.swipes.length - 1);
+}
+
+function setPanelTitle(panel, title) {
+    const titleEl = panel.querySelector('.ct-panel-header > span');
+    if (titleEl) titleEl.textContent = title;
 }
 
 function renderMessage(msgIdx) {
@@ -65,125 +71,97 @@ function keepOnlySwipe(msgIdx, swipeIdx) {
     return true;
 }
 
-function createSwipeCard(msgIdx, swipeIdx, text, isCurrent, refresh) {
-    const card = document.createElement('div');
-    card.className = 'ct-result-item';
-    card.style.cssText = 'cursor:default; margin-bottom:8px;' + (isCurrent ? ' border-color:#1976d2; background:#eef6ff;' : '');
+function createIconButton(icon, title, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'ct-btn';
+    button.textContent = icon;
+    button.title = title;
+    button.style.cssText = 'width:28px; height:28px; padding:0; margin:0; display:inline-flex; align-items:center; justify-content:center;';
+    button.addEventListener('click', onClick);
+    return button;
+}
 
-    const details = document.createElement('details');
-    const summary = document.createElement('summary');
-    summary.style.cssText = 'cursor:pointer; font-weight:600; display:flex; gap:6px; align-items:center;';
-    summary.textContent = `버전 ${swipeIdx + 1}`;
+function createSwipeRow({ msgIdx, swipeIdx, text, isCurrent, isSelected, onSelect, onDelete }) {
+    const row = document.createElement('div');
+    row.className = 'ct-result-item';
+    row.style.cssText = 'cursor:pointer; margin-bottom:6px;' +
+        (isCurrent ? ' border-color:#1976d2; background:#eef6ff;' : '') +
+        (!isCurrent && isSelected ? ' border-color:#999999;' : '');
+
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex; align-items:center; gap:8px;';
+
+    const num = document.createElement('span');
+    num.style.cssText = 'flex-shrink:0; width:1.8em; font-size:12px; font-weight:600;';
+    num.textContent = String(swipeIdx + 1);
+    header.appendChild(num);
+
+    const preview = document.createElement('span');
+    preview.style.cssText = 'flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px;';
+    preview.textContent = previewText(text, 90);
+    header.appendChild(preview);
+
     if (isCurrent) {
         const badge = document.createElement('span');
         badge.className = 'ct-badge';
         badge.textContent = '현재';
-        summary.appendChild(badge);
+        header.appendChild(badge);
+    } else if (isSelected) {
+        const badge = document.createElement('span');
+        badge.className = 'ct-badge';
+        badge.textContent = '선택';
+        header.appendChild(badge);
     }
-    details.appendChild(summary);
 
-    const content = document.createElement('div');
-    content.style.cssText = 'white-space:pre-wrap; margin-top:8px; font-size:12px; line-height:1.45;';
-    content.textContent = text;
-    details.appendChild(content);
-    card.appendChild(details);
-
-    const preview = document.createElement('div');
-    preview.className = 'ct-dim';
-    preview.style.cssText = 'margin:6px 0 8px; font-size:12px;';
-    preview.textContent = previewText(text, 120);
-    card.appendChild(preview);
-
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex; justify-content:space-between; gap:6px; align-items:center; flex-wrap:wrap;';
-
-    const left = document.createElement('div');
-    left.style.cssText = 'display:flex; gap:6px; flex-wrap:wrap;';
-
-    const selectBtn = btn('이 버전 선택', () => {
-        if (setCurrentSwipe(msgIdx, swipeIdx)) {
-            toastr.success('선택했습니다.', '', { timeOut: 1500 });
-            refresh();
-        }
+    const toggleBtn = createIconButton('▸', '내용 펼치기/접기', (e) => {
+        e.stopPropagation();
+        const open = content.style.display === 'none';
+        content.style.display = open ? 'block' : 'none';
+        toggleBtn.textContent = open ? '▾' : '▸';
     });
-    if (isCurrent) selectBtn.disabled = true;
-    left.appendChild(selectBtn);
+    header.appendChild(toggleBtn);
 
-    const keepBtn = btn('이 버전만 남기기', () => {
-        const confirmed = confirm('이 버전을 제외한 다른 스와이프를 모두 삭제할까요?');
+    const deleteBtn = createIconButton('🗑', '스와이프 삭제', (e) => {
+        e.stopPropagation();
+        const confirmed = confirm(`${swipeIdx + 1}번 스와이프를 삭제할까요?`);
         if (!confirmed) return;
-        if (keepOnlySwipe(msgIdx, swipeIdx)) {
-            toastr.success('정리했습니다.', '', { timeOut: 1500 });
-            openSwipeMessageListPanel();
-        }
-    });
-    left.appendChild(keepBtn);
-    row.appendChild(left);
-
-    const deleteBtn = btn('삭제', () => {
-        const confirmed = confirm(`버전 ${swipeIdx + 1}을 삭제할까요?`);
-        if (!confirmed) return;
-        if (deleteSwipe(msgIdx, swipeIdx)) {
-            toastr.success('삭제했습니다.', '', { timeOut: 1500 });
-            refresh();
-        }
+        onDelete();
     });
     deleteBtn.classList.add('ct-btn-danger');
-    row.appendChild(deleteBtn);
+    header.appendChild(deleteBtn);
 
-    card.appendChild(row);
-    return card;
+    row.appendChild(header);
+
+    const content = document.createElement('div');
+    content.style.cssText = 'display:none; white-space:pre-wrap; margin-top:8px; font-size:12px; line-height:1.45;';
+    content.textContent = text;
+    row.appendChild(content);
+
+    row.addEventListener('click', () => onSelect());
+    return row;
 }
 
-function openSwipeDetailPanel(msgIdx) {
-    const msg = getChat()[msgIdx];
-    if (!msg || !Array.isArray(msg.swipes) || msg.swipes.length < 2) {
-        openSwipeMessageListPanel();
-        return;
-    }
-
-    const panel = createPanel('ct-swipes-detail-panel', `#${msgIdx} 스와이프 (${msg.swipes.length})`);
-    const body = getPanelBody(panel);
-
-    const topRow = document.createElement('div');
-    topRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;';
-    topRow.appendChild(btn('목록', () => openSwipeMessageListPanel()));
-
-    const keepCurrentBtn = btn('현재 외 삭제', () => {
-        const current = getCurrentSwipeIndex(msg);
-        const confirmed = confirm('현재 채택된 버전을 제외한 다른 스와이프를 모두 삭제할까요?');
-        if (!confirmed) return;
-        if (keepOnlySwipe(msgIdx, current)) {
-            toastr.success('정리했습니다.', '', { timeOut: 1500 });
-            openSwipeMessageListPanel();
-        }
-    });
-    keepCurrentBtn.classList.add('ct-btn-danger');
-    topRow.appendChild(keepCurrentBtn);
-    body.appendChild(topRow);
-
-    const current = getCurrentSwipeIndex(msg);
-    msg.swipes.forEach((swipe, swipeIdx) => {
-        body.appendChild(createSwipeCard(msgIdx, swipeIdx, swipe, swipeIdx === current, () => openSwipeDetailPanel(msgIdx)));
-    });
-}
-
-export function openSwipesPanel() {
+function renderSwipeList(panel) {
     const items = getSwipeItems();
+    const body = getPanelBody(panel);
+    body.innerHTML = '';
+    setPanelTitle(panel, `스와이프 메시지 (${items.length})`);
+
     if (!items.length) {
-        toastr.info('스와이프가 있는 메시지가 없습니다.');
+        const empty = document.createElement('div');
+        empty.className = 'ct-dim';
+        empty.textContent = '스와이프가 있는 메시지가 없습니다.';
+        body.appendChild(empty);
         return;
     }
 
     const ctx = SillyTavern.getContext();
-    const panel = createPanel('ct-swipes-panel', `스와이프 메시지 (${items.length})`);
-    const body = getPanelBody(panel);
-
     items.forEach(({ msg, idx }) => {
         const item = document.createElement('div');
         item.className = 'ct-result-item';
         item.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer;';
-        item.addEventListener('click', () => openSwipeDetailPanel(idx));
+        item.addEventListener('click', () => scrollToMessage(idx));
 
         const num = document.createElement('span');
         num.style.cssText = 'flex-shrink:0; min-width:2.6em; font-size:11px; color:#999;';
@@ -198,9 +176,96 @@ export function openSwipesPanel() {
 
         const badge = document.createElement('span');
         badge.className = 'ct-badge';
-        badge.textContent = `${getCurrentSwipeIndex(msg) + 1}/${msg.swipes.length}`;
+        badge.textContent = `${msg.swipes.length}개`;
         item.appendChild(badge);
+
+        const detailBtn = btn('보기', (e) => {
+            e.stopPropagation();
+            renderSwipeDetail(panel, idx);
+        });
+        detailBtn.style.margin = '0';
+        item.appendChild(detailBtn);
 
         body.appendChild(item);
     });
+}
+
+function renderSwipeDetail(panel, msgIdx) {
+    const msg = getChat()[msgIdx];
+    if (!msg || !Array.isArray(msg.swipes) || msg.swipes.length < 2) {
+        renderSwipeList(panel);
+        return;
+    }
+
+    const body = getPanelBody(panel);
+    body.innerHTML = '';
+    setPanelTitle(panel, `#${msgIdx} 스와이프 (${msg.swipes.length})`);
+
+    renderSwipeDetailWithSelection(panel, msgIdx, getCurrentSwipeIndex(msg));
+}
+
+function renderSwipeDetailWithSelection(panel, msgIdx, selectedSwipeIdx) {
+    const msg = getChat()[msgIdx];
+    if (!msg || !Array.isArray(msg.swipes) || msg.swipes.length < 2) {
+        renderSwipeList(panel);
+        return;
+    }
+
+    const body = getPanelBody(panel);
+    body.innerHTML = '';
+    setPanelTitle(panel, `#${msgIdx} 스와이프 (${msg.swipes.length})`);
+
+    const current = getCurrentSwipeIndex(msg);
+    let selected = Math.min(Math.max(selectedSwipeIdx, 0), msg.swipes.length - 1);
+
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;';
+
+    topRow.appendChild(btn('목록', () => renderSwipeList(panel)));
+
+    const rightGroup = document.createElement('div');
+    rightGroup.style.cssText = 'display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;';
+    const selectBtn = btn('이 버전 선택', () => {
+        if (setCurrentSwipe(msgIdx, selected)) {
+            toastr.success('선택했습니다.', '', { timeOut: 1500 });
+            renderSwipeDetailWithSelection(panel, msgIdx, selected);
+        }
+    });
+    if (selected === current) selectBtn.disabled = true;
+    rightGroup.appendChild(selectBtn);
+
+    const keepCurrentBtn = btn('현재 스와이프만 남기기', () => {
+        const confirmed = confirm('현재 채택된 스와이프를 제외한 다른 스와이프를 모두 삭제할까요?');
+        if (!confirmed) return;
+        if (keepOnlySwipe(msgIdx, current)) {
+            toastr.success('정리했습니다.', '', { timeOut: 1500 });
+            renderSwipeList(panel);
+        }
+    });
+    keepCurrentBtn.classList.add('ct-btn-danger');
+    rightGroup.appendChild(keepCurrentBtn);
+    topRow.appendChild(rightGroup);
+    body.appendChild(topRow);
+
+    msg.swipes.forEach((swipe, swipeIdx) => {
+        body.appendChild(createSwipeRow({
+            msgIdx,
+            swipeIdx,
+            text: swipe,
+            isCurrent: swipeIdx === current,
+            isSelected: swipeIdx === selected,
+            onSelect: () => renderSwipeDetailWithSelection(panel, msgIdx, swipeIdx),
+            onDelete: () => {
+                if (deleteSwipe(msgIdx, swipeIdx)) {
+                    toastr.success('삭제했습니다.', '', { timeOut: 1500 });
+                    renderSwipeDetailWithSelection(panel, msgIdx, Math.min(selected, getChat()[msgIdx]?.swipes?.length - 1 ?? 0));
+                }
+            },
+        }));
+    });
+}
+
+export function openSwipesPanel() {
+    const panel = createPanel('ct-swipes-panel', '스와이프 메시지');
+    renderSwipeList(panel);
 }
