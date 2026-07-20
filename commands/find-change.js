@@ -37,6 +37,30 @@ function resultTitleHtml(keyword, count, options) {
     return `"${escapeHtml(keyword)}" <span class="ct-dim">${count}개 발견</span>${optionBadgesHtml(options)}`;
 }
 
+function createBareIconButton(icon, title, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.innerHTML = icon;
+    button.title = title;
+    button.style.cssText = 'background:transparent; border:none; padding:0 2px; margin:0; cursor:pointer; font-size:12px; line-height:1; color:#999; display:inline-flex; align-items:center; justify-content:center; transform:translateY(-1px);';
+    button.addEventListener('click', onClick);
+    return button;
+}
+
+function setPanelTitleWithBackButton(panel, titleHtml, onBack) {
+    const titleEl = panel.querySelector('.ct-panel-header > span');
+    if (!titleEl) return;
+    titleEl.textContent = '';
+    titleEl.style.cssText = 'display:flex; align-items:center; gap:6px;';
+
+    const backBtn = createBareIconButton('<i class="fa-solid fa-arrow-left"></i>', '검색 결과로 돌아가기', onBack);
+    titleEl.appendChild(backBtn);
+
+    const title = document.createElement('span');
+    title.innerHTML = titleHtml;
+    titleEl.appendChild(title);
+}
+
 // 제목 옆 위치 표시(#메시지번호 (몇번째/전체))를 지금 상태에 맞게 갱신
 function updatePositionLabel(panel) {
     const el = panel.querySelector('#ct-pos');
@@ -225,6 +249,10 @@ async function runChangeOne(find, replace, options = {}) {
 function showChangeResultPanel(find, replaceValue, options) {
     const panel = createPanel('ct-change-panel', resultTitleHtml(find, getMarkCount(), options), () => clearHighlights());
     const body = getPanelBody(panel);
+    setPanelTitleWithBackButton(panel, resultTitleHtml(find, getMarkCount(), options), () => {
+        panel.remove();
+        runFind(find, options);
+    });
     updatePositionLabel(panel);
 
     const replaceInput = inputBox('바꿀 텍스트');

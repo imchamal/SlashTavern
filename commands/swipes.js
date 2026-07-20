@@ -89,7 +89,8 @@ function createBareIconButton(icon, title, onClick) {
     button.type = 'button';
     button.innerHTML = icon;
     button.title = title;
-    button.style.cssText = 'background:transparent; border:none; padding:0 2px; margin:0; cursor:pointer; font-size:12px; line-height:1; color:#999; display:inline-flex; align-items:center; justify-content:center; transform:translateY(-1px);';    button.addEventListener('click', onClick);
+    button.style.cssText = 'background:transparent; border:none; padding:0 2px; margin:0; cursor:pointer; font-size:12px; line-height:1; color:#999; display:inline-flex; align-items:center; justify-content:center; transform:translateY(-1px);';
+    button.addEventListener('click', onClick);
     return button;
 }
 
@@ -104,7 +105,7 @@ function createSwipeRow({ msgIdx, swipeIdx, text, isCurrent, isSelected, onSelec
     header.style.cssText = 'display:flex; align-items:center; gap:8px;';
 
     const num = document.createElement('span');
-    num.style.cssText = 'flex-shrink:0; width:1.8em; font-size:12px; font-weight:600;';
+    num.style.cssText = 'flex-shrink:0; min-width:2.6em; font-size:11px; color:#999;';
     num.textContent = String(swipeIdx + 1);
     header.appendChild(num);
 
