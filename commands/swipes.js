@@ -87,7 +87,7 @@ function keepOnlySwipe(msgIdx, swipeIdx) {
 function createBareIconButton(icon, title, onClick) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = icon;
+    button.innerHTML = icon;
     button.title = title;
     button.style.cssText = 'background:transparent; border:none; padding:0 2px; margin:0; cursor:pointer; font-size:15px; line-height:1;';
     button.addEventListener('click', onClick);
