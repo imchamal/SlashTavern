@@ -47,18 +47,18 @@ function createBareIconButton(icon, title, onClick) {
     return button;
 }
 
-function setPanelTitleWithBackButton(panel, titleHtml, title, onBack) {
+function setPanelTitleWithBackButton(panel, titleHtml, backTitle, onBack) {
     const titleEl = panel.querySelector('.ct-panel-header > span');
     if (!titleEl) return;
     titleEl.textContent = '';
     titleEl.style.cssText = 'display:flex; align-items:center; gap:6px;';
 
-    const backBtn = createBareIconButton('<i class="fa-solid fa-arrow-left"></i>', title, onBack);
+    const backBtn = createBareIconButton('<i class="fa-solid fa-arrow-left"></i>', backTitle, onBack);
     titleEl.appendChild(backBtn);
 
-    const title = document.createElement('span');
-    title.innerHTML = titleHtml;
-    titleEl.appendChild(title);
+    const titleText = document.createElement('span');
+    titleText.innerHTML = titleHtml;
+    titleEl.appendChild(titleText);
 }
 
 // 제목 옆 위치 표시(#메시지번호 (몇번째/전체))를 지금 상태에 맞게 갱신
