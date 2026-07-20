@@ -9,29 +9,31 @@ import { openSwipesPanel } from './swipes.js';
 function createMenuItem({ icon, title, desc, onClick }) {
     const item = document.createElement('button');
     item.type = 'button';
-    item.className = 'ct-result-item';
-    item.style.cssText = 'width:100%; display:flex; align-items:center; gap:10px; text-align:left; padding:10px 12px; margin-bottom:8px; cursor:pointer;';
+    item.className = 'ct-menu-item';
 
     const iconEl = document.createElement('span');
     iconEl.innerHTML = icon;
-    iconEl.style.cssText = 'width:22px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; color:#999; font-size:13px;';
+    iconEl.className = 'ct-menu-chip';
     item.appendChild(iconEl);
 
     const textWrap = document.createElement('span');
-    textWrap.style.cssText = 'display:flex; flex-direction:column; gap:2px; min-width:0;';
+    textWrap.className = 'ct-menu-body';
 
     const titleEl = document.createElement('span');
     titleEl.textContent = title;
-    titleEl.style.cssText = 'font-size:13px; font-weight:600; color:inherit;';
+    titleEl.className = 'ct-menu-title';
     textWrap.appendChild(titleEl);
 
     const descEl = document.createElement('span');
     descEl.textContent = desc;
-    descEl.className = 'ct-dim';
-    descEl.style.cssText = 'font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
+    descEl.className = 'ct-menu-desc';
     textWrap.appendChild(descEl);
 
     item.appendChild(textWrap);
+    const chev = document.createElement('span');
+    chev.className = 'ct-menu-chev';
+    chev.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+    item.appendChild(chev);
     item.addEventListener('click', onClick);
     return item;
 }
@@ -39,6 +41,7 @@ function createMenuItem({ icon, title, desc, onClick }) {
 export function openUnifiedMessagesPanel() {
     const panel = createPanel('ct-message-tools-panel', '메시지 도구');
     const body = getPanelBody(panel);
+    body.classList.add('ct-menu-list');
 
     const openNext = (openPanel) => {
         panel.remove();

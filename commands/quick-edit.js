@@ -1,7 +1,6 @@
 // ─── commands/quick-edit.js ─────────────────────────────────────────────────
 // 채팅 메시지에서 텍스트를 드래그(길게 눌러 선택)하면 그 아래에 아이콘 2개가 뜸:
-// "✏️" 누르면 다른 패널들과 같은 디자인의 입력 패널이 떠서 그 부분만 바꿔주고,
-// "🔍" 누르면 선택한 단어로 곧바로 /find 검색을 실행함.
+// 펜 아이콘은 빠른수정, 돋보기 아이콘은 선택한 단어로 바로 검색을 실행함.
 
 import { getChat, editMessage, getSettings } from '../state.js';
 import { createPanel, getPanelBody, inputBox, btn } from '../panel-ui.js';
@@ -26,7 +25,7 @@ function showPill(x, y, actions) {
     actions.forEach(({ icon, onClick }) => {
         const item = document.createElement('span');
         item.className = 'ct-pill-item';
-        item.textContent = icon;
+        item.innerHTML = icon;
         item.addEventListener('click', () => { onClick(); removePill(); });
         pillEl.appendChild(item);
     });
@@ -39,7 +38,7 @@ function openQuickEditPanel(msgIdx, originalText) {
     const input = inputBox('바꿀 텍스트');
     input.value = originalText;
     body.appendChild(input);
-    body.appendChild(btn('적용', async () => {
+    const applyBtn = btn('<i class="fa-solid fa-check"></i> 적용', async () => {
         const replacement = input.value;
         panel.remove();
         const chat = getChat();
@@ -53,7 +52,13 @@ function openQuickEditPanel(msgIdx, originalText) {
         const newMes = msg.mes.slice(0, idx) + replacement + msg.mes.slice(idx + originalText.length);
         await editMessage(msgIdx, newMes);
         toastr.success('수정되었습니다.', '', { timeOut: 2000 });
-    }));
+    });
+    applyBtn.classList.add('ct-btn-primary');
+    const row = document.createElement('div');
+    row.className = 'ct-row-between';
+    row.style.justifyContent = 'flex-end';
+    row.appendChild(applyBtn);
+    body.appendChild(row);
     input.focus();
     input.select();
 }
@@ -78,8 +83,8 @@ function handleSelection() {
     if (!rect || (rect.width === 0 && rect.height === 0)) { removePill(); return; }
 
     showPill(rect.left + rect.width / 2, rect.bottom + 10, [
-        { icon: '✏️', onClick: () => openQuickEditPanel(msgIdx, text) },
-        { icon: '🔍', onClick: () => runFind(text) },
+        { icon: '<i class="fa-solid fa-pen"></i>', onClick: () => openQuickEditPanel(msgIdx, text) },
+        { icon: '<i class="fa-solid fa-magnifying-glass"></i>', onClick: () => runFind(text) },
     ]);
 }
 

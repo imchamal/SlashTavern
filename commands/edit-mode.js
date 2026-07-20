@@ -6,20 +6,45 @@
 import { SlashCommandParser } from '/scripts/slash-commands/SlashCommandParser.js';
 import { SlashCommand } from '/scripts/slash-commands/SlashCommand.js';
 import { getSettings, saveSettings } from '../state.js';
-import { createPanel, getPanelBody, checkRow } from '../panel-ui.js';
+import { createPanel, getPanelBody } from '../panel-ui.js';
+
+function settingRow(title, desc, getVal, onChange) {
+    const row = document.createElement('div');
+    row.className = 'ct-setting-row';
+
+    const label = document.createElement('div');
+    label.className = 'ct-setting-label';
+    label.innerHTML = `<b>${title}</b><span>${desc}</span>`;
+    row.appendChild(label);
+
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = `ct-toggle${getVal() ? ' on' : ''}`;
+    toggle.title = title;
+    toggle.addEventListener('click', () => {
+        const next = !getVal();
+        onChange(next);
+        toggle.classList.toggle('on', next);
+    });
+    row.appendChild(toggle);
+
+    return row;
+}
 
 export function openSettingsPanel() {
     const settings = getSettings();
     const panel = createPanel('ct-settings-panel', '설정');
     const body = getPanelBody(panel);
 
-    body.appendChild(checkRow(
+    body.appendChild(settingRow(
         '하이라이트 사용',
+        '/search 결과를 채팅에 색으로 표시',
         () => settings.hlEnabled,
         (v) => { settings.hlEnabled = v; saveSettings(); },
     ));
-    body.appendChild(checkRow(
+    body.appendChild(settingRow(
         '퀵 메뉴 사용',
+        '텍스트 드래그 시 빠른수정 아이콘 표시',
         () => settings.quickEditEnabled,
         (v) => { settings.quickEditEnabled = v; saveSettings(); },
     ));

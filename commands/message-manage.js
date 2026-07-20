@@ -9,7 +9,7 @@
 import { SlashCommandParser } from '/scripts/slash-commands/SlashCommandParser.js';
 import { SlashCommand } from '/scripts/slash-commands/SlashCommand.js';
 import { getChat } from '../state.js';
-import { createPanel, getPanelBody, btn } from '../panel-ui.js';
+import { createPanel, getPanelBody, btn, setPanelTitleWithBack } from '../panel-ui.js';
 import { previewText } from '../utils.js';
 
 // 정렬된 인덱스 배열을 연속 구간들로 묶음. 예: [1,2,3,7,9,10] → [[1,3],[7,7],[9,10]]
@@ -63,11 +63,16 @@ export function openMessagePanel() {
     const ctx = SillyTavern.getContext();
     const selected = new Set();
 
-    const panel = createPanel('ct-messages-panel', `전체 메시지 (${chat.length})`);
+    const panel = createPanel('ct-messages-panel', `전체 메시지 <span class="ct-dim">(${chat.length})</span>`);
     const body = getPanelBody(panel);
+    setPanelTitleWithBack(panel, `전체 메시지 <span class="ct-dim">(${chat.length})</span>`, '메시지 도구로 돌아가기', async () => {
+        panel.remove();
+        const { openUnifiedMessagesPanel } = await import('./unified-panel.js');
+        openUnifiedMessagesPanel();
+    });
 
     const topRow = document.createElement('div');
-    topRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;';
+    topRow.className = 'ct-row-between';
     const countLabel = document.createElement('span');
     countLabel.className = 'ct-dim';
     const selectAllBtn = btn('전체 선택', () => {
@@ -80,7 +85,7 @@ export function openMessagePanel() {
     body.appendChild(topRow);
 
     const list = document.createElement('div');
-    list.style.cssText = 'max-height:340px; overflow-y:auto; margin-bottom:10px;';
+    list.className = 'ct-list-scroll';
     body.appendChild(list);
 
     function updateCountLabel() {
@@ -94,7 +99,7 @@ export function openMessagePanel() {
         chat.forEach((msg, idx) => {
             const item = document.createElement('label');
             item.className = 'ct-result-item';
-            item.style.cssText = 'display:flex; align-items:center; gap:8px; cursor:pointer;' + (msg.is_system ? ' opacity:0.55;' : '');
+            item.style.cssText = 'display:flex; align-items:center; gap:var(--ct-list-gap); cursor:pointer;' + (msg.is_system ? ' opacity:0.55;' : '');
 
             const chk = document.createElement('input');
             chk.type = 'checkbox';
@@ -105,12 +110,12 @@ export function openMessagePanel() {
             });
 
             const num = document.createElement('span');
-            num.style.cssText = 'flex-shrink:0; min-width:2.6em; font-size:11px; color:#999;';
+            num.className = 'ct-list-num';
             num.textContent = `#${idx}`;
 
             const sender = msg.name || (msg.is_user ? ctx.name1 : ctx.name2);
             const txt = document.createElement('span');
-            txt.style.cssText = 'flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px;';
+            txt.className = 'ct-list-text';
             txt.textContent = `${sender}: ${previewText(msg.mes)}`;
 
             item.appendChild(chk);
@@ -139,19 +144,20 @@ export function openMessagePanel() {
     actionRow.className = 'ct-action-row';
 
     const leftGroup = document.createElement('div');
-    leftGroup.appendChild(btn('선택 숨김', async () => {
+    leftGroup.className = 'ct-row-gap';
+    leftGroup.appendChild(btn('<i class="fa-solid fa-eye-slash"></i> 선택 숨김', async () => {
         if (!selected.size) { toastr.info('선택된 메시지가 없습니다.'); return; }
         const ok = await runHideUnhide([...selected], true);
         if (ok) { toastr.success('숨김 처리했습니다.', '', { timeOut: 2000 }); reopen(); }
     }));
-    leftGroup.appendChild(btn('선택 숨김해제', async () => {
+    leftGroup.appendChild(btn('<i class="fa-solid fa-eye"></i> 숨김해제', async () => {
         if (!selected.size) { toastr.info('선택된 메시지가 없습니다.'); return; }
         const ok = await runHideUnhide([...selected], false);
         if (ok) { toastr.success('숨김을 해제했습니다.', '', { timeOut: 2000 }); reopen(); }
     }));
     actionRow.appendChild(leftGroup);
 
-    const deleteBtn = btn('선택 삭제', async () => {
+    const deleteBtn = btn('<i class="fa-solid fa-trash-can"></i> 선택 삭제', async () => {
         if (!selected.size) { toastr.info('선택된 메시지가 없습니다.'); return; }
         const confirmed = confirm(`선택한 ${selected.size}개 메시지를 삭제할까요?\n삭제하면 되돌릴 수 없습니다.`);
         if (!confirmed) return;

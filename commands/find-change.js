@@ -7,7 +7,7 @@ import { SlashCommandParser } from '/scripts/slash-commands/SlashCommandParser.j
 import { SlashCommand } from '/scripts/slash-commands/SlashCommand.js';
 import { ARGUMENT_TYPE, SlashCommandArgument } from '/scripts/slash-commands/SlashCommandArgument.js';
 import { getChat, editMessage, getSettings } from '../state.js';
-import { createPanel, getPanelBody, btn, inputBox, checkRow } from '../panel-ui.js';
+import { createPanel, getPanelBody, btn, inputBox, checkRow, setPanelTitleWithBack } from '../panel-ui.js';
 import { buildSearchRegex, maskTags, parseRangeInput } from '../utils.js';
 import {
     highlightKeyword, focusNext, focusPrev, clearHighlights,
@@ -42,7 +42,7 @@ function createBareIconButton(icon, title, onClick) {
     button.type = 'button';
     button.innerHTML = icon;
     button.title = title;
-    button.style.cssText = 'background:transparent; border:none; padding:0 2px; margin:0; cursor:pointer; font-size:12px; line-height:1; color:#999; display:inline-flex; align-items:center; justify-content:center; transform:translateY(-1px);';
+    button.className = 'ct-icon-btn ct-header-icon';
     button.addEventListener('click', onClick);
     return button;
 }
@@ -51,7 +51,7 @@ function setPanelTitleWithBackButton(panel, titleHtml, backTitle, onBack) {
     const titleEl = panel.querySelector('.ct-panel-header > span');
     if (!titleEl) return;
     titleEl.textContent = '';
-    titleEl.style.cssText = 'display:flex; align-items:center; gap:6px;';
+    titleEl.style.cssText = '';
 
     const backBtn = createBareIconButton('<i class="fa-solid fa-arrow-left"></i>', backTitle, onBack);
     titleEl.appendChild(backBtn);
@@ -77,7 +77,7 @@ function buildSearchControls() {
     const state = { caseSensitive: false, ignoreSpace: false, wholeWord: false, ignoreTags: false };
 
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:grid; grid-template-columns: 1fr 1fr; gap:2px 12px; margin-bottom:10px;';
+    grid.style.cssText = 'display:grid; grid-template-columns:1fr 1fr; gap:10px 16px;';
     grid.appendChild(checkRow('대소문자 구분', () => state.caseSensitive, (v) => { state.caseSensitive = v; }));
     grid.appendChild(checkRow('띄어쓰기 무시', () => state.ignoreSpace, (v) => { state.ignoreSpace = v; }));
     grid.appendChild(checkRow('온전한 단어', () => state.wholeWord, (v) => { state.wholeWord = v; }));
@@ -90,7 +90,7 @@ function buildSearchControls() {
     rangeInput.autocorrect = 'off';
     rangeInput.autocapitalize = 'off';
     rangeInput.spellcheck = false;
-    rangeInput.style.cssText = 'width:70px; box-sizing:border-box; padding:6px 10px; border-radius:8px; border:1px solid #dddddd; background:#f4f4f4; font-size:13px; font-family:inherit; margin:0;';
+    rangeInput.style.cssText = 'width:96px; box-sizing:border-box; padding:8px 10px; border-radius:9px; border:1px solid var(--ct-border); background:var(--ct-panel-bg-muted); color:var(--ct-text); font-size:12.5px; font-family:inherit; margin:0;';
 
     function getOptions() {
         return { ...state };
@@ -127,21 +127,23 @@ export function runFind(keyword, options = {}) {
         openSearchInputPanel();
     });
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
+    row.className = 'ct-row-between';
 
     const leftGroup = document.createElement('div');
-    leftGroup.style.cssText = 'display:flex; gap:6px;';
-    leftGroup.appendChild(btn('◀ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    leftGroup.appendChild(btn('다음 ▶︎', () => { focusNext(); updatePositionLabel(panel); }));
+    leftGroup.className = 'ct-seg';
+    leftGroup.appendChild(btn('<i class="fa-solid fa-chevron-left"></i> 이전', () => { focusPrev(); updatePositionLabel(panel); }));
+    leftGroup.appendChild(btn('다음 <i class="fa-solid fa-chevron-right"></i>', () => { focusNext(); updatePositionLabel(panel); }));
     row.appendChild(leftGroup);
 
     // 이미 하이라이트되어 있는 지금 검색 결과를 그대로 들고 "찾아바꾸기" 패널로 전환.
     // (다시 검색하지 않고 showChangeResultPanel만 새로 띄움)
-    const changeBtn = btn('🪄', () => {
+    const changeBtn = btn('<i class="fa-solid fa-wand-magic-sparkles"></i>', () => {
         panel.remove();
         showChangeResultPanel(keyword, '', options);
     });
-    changeBtn.style.margin = '0';
+    changeBtn.className = 'ct-icon-btn';
+    changeBtn.title = '찾아바꾸기로 전환';
+    changeBtn.style.cssText = 'border:1px solid var(--ct-border); width:34px; height:34px;';
     row.appendChild(changeBtn);
 
     body.appendChild(row);
@@ -155,6 +157,11 @@ export function runFind(keyword, options = {}) {
 export function openSearchInputPanel() {
     const panel = createPanel('ct-search-panel', '검색');
     const body = getPanelBody(panel);
+    setPanelTitleWithBack(panel, '검색', '메시지 도구로 돌아가기', async () => {
+        panel.remove();
+        const { openUnifiedMessagesPanel } = await import('./unified-panel.js');
+        openUnifiedMessagesPanel();
+    });
     const input = inputBox('찾을 단어를 입력하세요');
     body.appendChild(input);
 
@@ -162,11 +169,10 @@ export function openSearchInputPanel() {
     body.appendChild(grid);
 
     const bottomRow = document.createElement('div');
-    bottomRow.style.cssText = 'display:flex; justify-content:space-between; align-items:center;';
+    bottomRow.className = 'ct-row-between';
     bottomRow.appendChild(rangeInput);
-    const findBtn = btn('찾기', doFind);
-    findBtn.classList.add('ct-btn-white');
-    findBtn.style.margin = '0';
+    const findBtn = btn('찾기 <i class="fa-solid fa-magnifying-glass"></i>', doFind);
+    findBtn.classList.add('ct-btn-primary');
     bottomRow.appendChild(findBtn);
     body.appendChild(bottomRow);
 
@@ -270,13 +276,13 @@ function showChangeResultPanel(find, replaceValue, options) {
     actionRow.className = 'ct-action-row';
 
     const navGroup = document.createElement('div');
-    navGroup.style.cssText = 'display:flex; gap:6px;';
-    navGroup.appendChild(btn('◂ 이전', () => { focusPrev(); updatePositionLabel(panel); }));
-    navGroup.appendChild(btn('다음 ▸', () => { focusNext(); updatePositionLabel(panel); }));
+    navGroup.className = 'ct-seg';
+    navGroup.appendChild(btn('<i class="fa-solid fa-chevron-left"></i> 이전', () => { focusPrev(); updatePositionLabel(panel); }));
+    navGroup.appendChild(btn('다음 <i class="fa-solid fa-chevron-right"></i>', () => { focusNext(); updatePositionLabel(panel); }));
     actionRow.appendChild(navGroup);
 
     const rightGroup = document.createElement('div');
-    rightGroup.style.cssText = 'display:flex; gap:6px;';
+    rightGroup.className = 'ct-row-gap';
 
     // 지금 보고 있는 매치 하나만 바꾸고, 검색을 새로고침해서 계속 다음 매치를 검토할 수 있게 함
     const oneBtn = btn('바꾸기', async () => {
@@ -284,7 +290,7 @@ function showChangeResultPanel(find, replaceValue, options) {
         panel.remove();
         runChangeSearch(find, replaceInput.value, options);
     });
-    oneBtn.style.cssText += 'background:#1976d2; color:#ffffff; border-color:#1976d2;';
+    oneBtn.classList.add('ct-btn-primary');
     rightGroup.appendChild(oneBtn);
 
     // 전체 매치를 한 번에 바꿈
