@@ -31,7 +31,7 @@ function setPanelTitleWithListButton(panel, title, onList) {
     titleEl.textContent = '';
     titleEl.style.cssText = 'display:flex; align-items:center; gap:6px;';
 
-    const listBtn = createBareIconButton('↩', '목록으로 돌아가기', onList);
+    const listBtn = createBareIconButton('<i class="fa-solid fa-arrow-left"></i>', '목록으로 돌아가기', onList);
     titleEl.appendChild(listBtn);
     titleEl.appendChild(document.createTextNode(title));
 }
@@ -114,15 +114,15 @@ function createSwipeRow({ msgIdx, swipeIdx, text, isCurrent, isSelected, onSelec
     preview.textContent = previewText(text, 90);
     header.appendChild(preview);
 
-    const toggleBtn = createBareIconButton('▾', '내용 펼치기/접기', (e) => {
+    const toggleBtn = createBareIconButton('<i class="fa-solid fa-caret-down"></i>', '내용 펼치기/접기', (e) => {
         e.stopPropagation();
         const open = content.style.display === 'none';
         content.style.display = open ? 'block' : 'none';
-        toggleBtn.textContent = open ? '▴' : '▾';
+        toggleBtn.innerHTML = open ? '<i class="fa-solid fa-caret-up"></i>' : '<i class="fa-solid fa-caret-down"></i>';
     });
     header.appendChild(toggleBtn);
 
-    const deleteBtn = createBareIconButton('🗑️', '스와이프 삭제', (e) => {
+    const deleteBtn = createBareIconButton('<i class="fa-solid fa-trash-can"></i>', '스와이프 삭제', (e) => {
         e.stopPropagation();
         const confirmed = confirm(`${swipeIdx + 1}번 스와이프를 삭제할까요?`);
         if (!confirmed) return;
@@ -178,7 +178,7 @@ function renderSwipeList(panel) {
         badge.textContent = `${msg.swipes.length}개`;
         item.appendChild(badge);
 
-        const detailBtn = createBareIconButton('👁️', '스와이프 보기', (e) => {
+        const detailBtn = createBareIconButton('<i class="fa-solid fa-angle-right"></i>', '스와이프 보기', (e) => {
             e.stopPropagation();
             renderSwipeDetail(panel, idx);
         });
@@ -240,7 +240,7 @@ function renderSwipeDetailWithSelection(panel, msgIdx, selectedSwipeIdx) {
     actionRow.className = 'ct-action-row';
     actionRow.style.cssText += ' margin-top:8px; gap:8px;';
 
-    const undoBtn = createBareIconButton('↶', '현재 스와이프로 선택 되돌리기', () => {
+    const undoBtn = createBareIconButton('<i class="fa-solid fa-arrow-rotate-left"></i>', '현재 스와이프로 선택 되돌리기', () => {
         renderSwipeDetailWithSelection(panel, msgIdx, current);
     });
     actionRow.appendChild(undoBtn);
