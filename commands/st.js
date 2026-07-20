@@ -6,7 +6,7 @@ import {
     scrollToMemoryBoundary, scrollToAdjacentMessage,
 } from './scroll.js';
 import { runSearchCommand } from './find-change.js';
-import { copyMessages } from './clipboard.js';
+import { copyText } from './clipboard.js';
 import { countWords } from './wordcount.js';
 import { openSettingsPanel } from './edit-mode.js';
 import { openMessagePanel } from './message-manage.js';
@@ -19,7 +19,7 @@ const SUBCOMMANDS = [
     'prev',
     'next',
     'message-mb',
-    'clip',
+    'copy',
     'word',
     'settings',
     'messages',
@@ -59,8 +59,8 @@ async function runStSubcommand(command, rest) {
         case 'message-mb':
             await scrollToMemoryBoundary();
             break;
-        case 'clip':
-            await copyMessages(rest);
+        case 'copy':
+            await copyText(rest);
             break;
         case 'word':
             await countWords(rest);
