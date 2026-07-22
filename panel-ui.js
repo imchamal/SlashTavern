@@ -8,21 +8,24 @@ export function injectThemeCSS() {
     s.id = 'ct-theme-vars';
     s.textContent = `
         :root {
-            --ct-panel-bg: #ffffff;
-            --ct-panel-bg-muted: #f7f7f8;
-            --ct-border: #e6e6e8;
-            --ct-border-soft: #eeeeef;
-            --ct-text: #232326;
-            --ct-text-dim: #95959c;
-            --ct-primary: #3f6fe0;
-            --ct-primary-hover: #3259bd;
-            --ct-primary-tint: #eef2fd;
-            --ct-danger: #e0473f;
-            --ct-danger-hover: #c73a33;
-            --ct-danger-tint: #fdeeed;
+            --ct-panel-bg: var(--SmartThemeBlurTintColor);
+            --ct-panel-bg-muted: var(--SmartThemeFastUIBGColor);
+            --ct-hover-bg: color-mix(in srgb, var(--SmartThemeEmColor) 28%, transparent);
+            --ct-border: var(--SmartThemeEmColor);
+            --ct-border-soft: var(--grey30a);
+            --ct-text: var(--SmartThemeBodyColor);
+            --ct-text-dim: var(--SmartThemeEmColor);
+            --ct-primary: var(--SmartThemeQuoteColor);
+            --ct-primary-hover: color-mix(in srgb, var(--SmartThemeQuoteColor) 82%, var(--SmartThemeBodyColor) 18%);
+            --ct-primary-tint: color-mix(in srgb, var(--SmartThemeQuoteColor) 22%, transparent);
+            --ct-on-primary: var(--SmartThemeFastUIBGColor);
+            --ct-danger: var(--crimson70a);
+            --ct-danger-hover: var(--fullred);
+            --ct-danger-tint: color-mix(in srgb, var(--crimson70a) 35%, transparent);
+            --ct-on-danger: var(--SmartThemeBodyColor);
             --ct-radius-panel: 16px;
             --ct-radius-control: 9px;
-            --ct-shadow-panel: 0 16px 40px rgba(20,20,24,.14), 0 3px 10px rgba(20,20,24,.06);
+            --ct-shadow-panel: 0 0 20px var(--SmartThemeShadowColor);
             --ct-list-item-pad-y: 7px;
             --ct-list-item-pad-x: 8px;
             --ct-list-num-w: 28px;
@@ -60,7 +63,7 @@ export function injectThemeCSS() {
             font-size: 13px; cursor: pointer; transition: background .12s, color .12s;
         }
         .ct-close-btn:hover {
-            background: #eceef1; color: var(--ct-text);
+            background: var(--ct-hover-bg); color: var(--ct-text);
         }
         .ct-btn {
             height: 34px; padding: 0 15px; border-radius: var(--ct-radius-control);
@@ -69,14 +72,14 @@ export function injectThemeCSS() {
             margin: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             white-space: nowrap; transition: background .12s, border-color .12s, color .12s;
         }
-        .ct-btn:hover, .ct-btn:active { background: #eeeef0; }
+        .ct-btn:hover, .ct-btn:active { background: var(--ct-hover-bg); }
         .ct-btn:disabled { opacity: .5; cursor: default; }
         .ct-input {
             width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: var(--ct-radius-control);
             border: 1px solid var(--ct-border); background: var(--ct-panel-bg-muted);
             color: var(--ct-text); font-size: 13px; margin: 0; font-family: inherit;
         }
-        .ct-input::placeholder { color: #b3b3b8; }
+        .ct-input::placeholder { color: var(--ct-text-dim); }
         .ct-result-item {
             padding: var(--ct-list-item-pad-y) var(--ct-list-item-pad-x);
             border-radius: 9px; cursor: pointer; margin: 0 0 4px;
@@ -86,7 +89,7 @@ export function injectThemeCSS() {
         .ct-result-item:hover { background: var(--ct-panel-bg-muted); border-color: transparent; }
         .ct-check-row {
             display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer;
-            font-size: 12.5px; color: #3d3d41;
+            font-size: 12.5px; color: var(--ct-text);
         }
         .ct-check-row input[type="checkbox"] {
             width: 16px; height: 16px; accent-color: var(--ct-primary);
@@ -98,17 +101,17 @@ export function injectThemeCSS() {
             margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ct-border-soft);
         }
         .ct-btn-white {
-            background: #ffffff; color: var(--ct-text); border-color: var(--ct-border);
+            background: var(--ct-panel-bg); color: var(--ct-text); border-color: var(--ct-border);
         }
-        .ct-btn-white:hover, .ct-btn-white:active { background: #eeeef0; }
+        .ct-btn-white:hover, .ct-btn-white:active { background: var(--ct-hover-bg); }
         .ct-btn-primary {
-            background: var(--ct-primary); color: #ffffff; border-color: var(--ct-primary);
+            background: var(--ct-primary); color: var(--ct-on-primary); border-color: var(--ct-primary);
         }
         .ct-btn-primary:hover, .ct-btn-primary:active {
             background: var(--ct-primary-hover); border-color: var(--ct-primary-hover);
         }
         .ct-btn-danger {
-            background: var(--ct-danger); color: #ffffff; border-color: var(--ct-danger);
+            background: var(--ct-danger); color: var(--ct-on-danger); border-color: var(--ct-danger);
         }
         .ct-btn-danger:hover, .ct-btn-danger:active {
             background: var(--ct-danger-hover); border-color: var(--ct-danger-hover);
@@ -130,10 +133,10 @@ export function injectThemeCSS() {
             width: 20px; height: 20px; border-radius: 6px; font-size: 10.5px;
         }
         .ct-icon-btn:hover, .ct-icon-btn-sm:hover {
-            background: var(--ct-panel-bg-muted); color: var(--ct-text);
+            background: var(--ct-hover-bg); color: var(--ct-text);
         }
         .ct-icon-btn.danger:hover, .ct-icon-btn-sm.danger:hover {
-            background: var(--ct-danger-tint); color: var(--ct-danger);
+            background: var(--ct-danger-tint); color: var(--ct-danger-hover);
         }
         .ct-header-icon {
             background: var(--ct-panel-bg-muted);
@@ -166,7 +169,7 @@ export function injectThemeCSS() {
             flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .ct-current {
-            background: var(--ct-primary-tint); border-color: #d8e2fb;
+            background: var(--ct-primary-tint); border-color: var(--ct-primary);
         }
         .ct-menu-list {
             display: flex; flex-direction: column; gap: 3px;
@@ -201,13 +204,13 @@ export function injectThemeCSS() {
         .ct-setting-label b { display: block; font-size: 13px; font-weight: 600; }
         .ct-setting-label span { display: block; font-size: 11.5px; color: var(--ct-text-dim); margin-top: 2px; }
         .ct-toggle {
-            width: 38px; height: 22px; border: none; border-radius: 999px; background: #dcdce0;
+            width: 38px; height: 22px; border: none; border-radius: 999px; background: var(--ct-border-soft);
             position: relative; flex-shrink: 0; cursor: pointer; transition: background .15s;
         }
         .ct-toggle::after {
             content: ""; position: absolute; top: 2px; left: 2px;
-            width: 18px; height: 18px; border-radius: 50%; background: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .15s;
+            width: 18px; height: 18px; border-radius: 50%; background: var(--ct-text);
+            box-shadow: 0 1px 3px var(--SmartThemeShadowColor); transition: left .15s;
         }
         .ct-toggle.on { background: var(--ct-primary); }
         .ct-toggle.on::after { left: 18px; }
@@ -217,10 +220,10 @@ export function injectThemeCSS() {
 
         /* /find 하이라이트 표시 */
         #chat .mes_text mark[data-ct] {
-            background: rgba(177,224,179,0.9) !important; color: inherit !important; padding: 1px;
+            background: var(--ct-primary-tint) !important; color: inherit !important; padding: 1px;
         }
         #chat .mes_text mark[data-ct].ct-cur {
-            background: rgba(0,0,0,0.75) !important; color: #ffffff !important; font-weight: bold;
+            background: var(--ct-primary) !important; color: var(--ct-on-primary) !important; font-weight: bold;
         }
 
         /* 드래그 선택 후 뜨는 빠른수정/검색 아이콘 묶음 */

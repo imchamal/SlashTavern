@@ -99,8 +99,8 @@ function createSwipeRow({ msgIdx, swipeIdx, text, isCurrent, isSelected, isOpen,
     const row = document.createElement('div');
     row.className = 'ct-result-item';
     row.style.cssText = 'cursor:pointer;' +
-        (isCurrent ? ' border-color:#d8e2fb; background:var(--ct-primary-tint);' : '') +
-        (!isCurrent && isSelected ? ' border-color:#999999;' : '');
+        (isCurrent ? ' border-color:var(--ct-primary); background:var(--ct-primary-tint);' : '') +
+        (!isCurrent && isSelected ? ' border-color:var(--ct-text-dim);' : '');
 
     const header = document.createElement('div');
     header.style.cssText = 'display:flex; align-items:center; gap:var(--ct-list-gap); min-height:24px;';
@@ -141,7 +141,7 @@ function createSwipeRow({ msgIdx, swipeIdx, text, isCurrent, isSelected, isOpen,
 
     if (isOpen) {
         const content = document.createElement('div');
-        content.style.cssText = 'white-space:pre-wrap; margin-top:7px; padding-left:calc(var(--ct-list-num-w) + var(--ct-list-gap)); font-size:12px; line-height:1.55; color:#4a4a4e;';
+        content.style.cssText = 'white-space:pre-wrap; margin-top:7px; padding-left:calc(var(--ct-list-num-w) + var(--ct-list-gap)); font-size:12px; line-height:1.55; color:var(--ct-text);';
         content.textContent = text;
         row.appendChild(content);
     }
